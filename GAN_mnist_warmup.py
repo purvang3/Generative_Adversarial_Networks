@@ -1,5 +1,5 @@
 """
-Author: Purvang Lapsiwala
+Purvang Lapsiwala
 Description:
     This file contains the code for GAN to create mnist dataset.
 Packages: pytorch, matplotlib, tqdm
@@ -231,7 +231,6 @@ def get_gen_loss(gen, disc, criterion, num_images, z_dim, device):
 
 for epoch in range(n_epochs):
 
-    # Dataloader returns the batches
     for real, _ in tqdm(dataloader):
         # real.shape --> (32,1,28,28)
         cur_batch_size = len(real)  # --> 32
