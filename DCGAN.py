@@ -56,7 +56,6 @@ class Generator(nn.Module):
     def __init__(self, z_dim=10, im_chan=1, hidden_dim=64):
         super(Generator, self).__init__()
         self.z_dim = z_dim
-        # Build the neural network
         self.gen = nn.Sequential(
             self.make_gen_block(z_dim, hidden_dim * 4),
             self.make_gen_block(hidden_dim * 4, hidden_dim * 2, kernel_size=4, stride=1),
@@ -76,7 +75,6 @@ class Generator(nn.Module):
             final_layer: a boolean, true if it is the final layer and false otherwise
                       (affects activation and batchnorm)
         """
-        # Build the neural block
         if not final_layer:
             return nn.Sequential(
                 nn.ConvTranspose2d(input_channels, output_channels, kernel_size, stride),
@@ -151,7 +149,6 @@ class Discriminator(nn.Module):
             final_layer: a boolean, true if it is the final layer and false otherwise
                       (affects activation and batchnorm)
          """
-        # Build the neural block
         if not final_layer:
             return nn.Sequential(
                 nn.Conv2d(input_channels, output_channels, kernel_size, stride),
@@ -181,7 +178,7 @@ transform = transforms.Compose([
 ])
 
 dataloader = DataLoader(
-    MNIST('.', download=False, transform=transform),
+    MNIST('./data/mnist/', download=False, transform=transform),
     batch_size=batch_size,
     shuffle=True)
 
@@ -216,11 +213,10 @@ for epoch in range(n_epochs):
         disc_real_loss = criterion(disc_real_pred, torch.ones_like(disc_real_pred))
         disc_loss = (disc_fake_loss + disc_real_loss) / 2
 
-        # Keep track of the average discriminator loss
+        # Keeping track of the average discriminator loss
         mean_discriminator_loss += disc_loss.item() / display_step
-        # Update gradients
-        disc_loss.backward(keep_graph=True)
-        # Update optimizer
+        # gradients update
+        disc_loss.backward(retain_graph=True)
         disc_opt.step()
 
         gen_opt.zero_grad()
@@ -231,7 +227,7 @@ for epoch in range(n_epochs):
         gen_loss.backward()
         gen_opt.step()
 
-        # Keep track of the average generator loss
+        # Keeping track of the average generator loss
         mean_generator_loss += gen_loss.item() / display_step
 
         if cur_step % display_step == 0 and cur_step > 0:
