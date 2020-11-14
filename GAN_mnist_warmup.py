@@ -71,8 +71,7 @@ class Generator(nn.Module):
     Generator Class
     Values:
         z_dim: the dimension of the noise vector, a scalar
-        im_dim: the dimension of the images, fitted for the dataset used, a scalar
-          (MNIST images are 28 x 28 = 784 so that is your default)
+        im_dim: the dimension of the images
         hidden_dim: the inner dimension, a scalar
     """
 
@@ -115,10 +114,7 @@ def get_noise(n_samples, z_dim, device='cpu'):
         z_dim: the dimension of the noise vector, a scalar
         device: the device type
     """
-    # NOTE: To use this on GPU with device='cuda', make sure to pass the device
-    # argument to the function you use to generate the noise.
     return torch.randn(n_samples, z_dim, device=device)
-    # Alternative: return torch.randn(n_samples, z_dim).to(device)
 
 
 def get_discriminator_block(input_dim, output_dim):
@@ -142,8 +138,7 @@ class Discriminator(nn.Module):
     """
     Discriminator Class
     Values:
-        im_dim: the dimension of the images, fitted for the dataset used, a scalar
-        hidden_dim: the inner dimension, a scalar
+        im_dim: the dimension of the images
     """
 
     def __init__(self, im_dim=784, hidden_dim=128):
@@ -235,22 +230,15 @@ for epoch in range(n_epochs):
         # real.shape --> (32,1,28,28)
         cur_batch_size = len(real)  # --> 32
 
-        # Flatten the batch of real images from the dataset
         real = real.view(cur_batch_size, -1).to(device)  # --> (32, 784)
 
-        # Zero out the gradients before backpropagation
         disc_opt.zero_grad()
 
-        # Calculate discriminator loss
         disc_loss = get_disc_loss(gen, disc, criterion, real, cur_batch_size, z_dim, device)
 
-        # Update gradients
         disc_loss.backward(retain_graph=True)
 
-        # Update optimizer
         disc_opt.step()
-
-        # For testing purposes, to keep track of the generator weights
 
         gen_opt.zero_grad()
 
@@ -259,13 +247,12 @@ for epoch in range(n_epochs):
         gen_loss.backward(retain_graph=True)
         gen_opt.step()
 
-        # Keep track of the average discriminator loss
+        # Keeping track of the average discriminator loss
         mean_discriminator_loss += disc_loss.item() / display_step
 
-        # Keep track of the average generator loss
+        # Keeping track of the average generator loss
         mean_generator_loss += gen_loss.item() / display_step
 
-        # Visualization code
         if cur_step % display_step == 0 and cur_step > 0:
             print(
                 f"Step {cur_step}: Generator loss: {mean_generator_loss}, discriminator loss: {mean_discriminator_loss}")
